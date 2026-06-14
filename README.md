@@ -1,135 +1,160 @@
 # MuseumDonationTooltip
 
-Create a Minecraft Fabric 1.21.11 client-side mod for Hypixel SkyBlock called “MuseumDonationTooltip”.
+MuseumDonationTooltip is a client-only Fabric mod for Minecraft 1.21.11. It adds one line to Hypixel SkyBlock item tooltips:
 
-The mod should check whether a Hypixel SkyBlock item type has already been donated to the player’s Museum, then add a line to the item’s tooltip when the player hovers over that item.
+- `Museum: Donated`
+- `Museum: Not Donated`
+- `Museum: Not museum-donatable`
+- `Museum: Unknown / API unavailable`
 
-Important: this must be a purely client-side informational mod. It must not automate gameplay, click menus, move items, send custom packets, alter player movement, alter combat, alter inventory behaviour, or change how the Minecraft client communicates with Hypixel. It should only read client-visible item data and request public Hypixel API data.
+The result is based on the SkyBlock item type, not the physical item instance. Enchantments, reforges, stars, recombobulation, rarity changes, durability, UUIDs, and similar mutable metadata do not affect the lookup.
 
-Core feature:
+## Architecture
 
-When the player hovers over a SkyBlock item, append a tooltip line at the end of the item description saying one of the following:
+Tooltip rendering is deliberately kept fast and local:
 
-“Museum: Donated”
-“Museum: Not Donated”
-“Museum: Not museum-donatable”
-“Museum: Unknown / API unavailable”
+1. `SkyBlockItemParser` reads `ExtraAttributes.id` from the hovered stack's `minecraft:custom_data` component.
+2. `ItemNormalizer` produces a stable uppercase SkyBlock key.
+3. `DonatableItemRegistry` resolves the key against the bundled Hypixel item snapshot, including starred aliases and armor-set donation keys.
+4. `MuseumDonationService` checks an immutable in-memory `HashSet` of donated keys.
+5. `MuseumTooltipHandler` appends the configured line through Fabric's `ItemTooltipCallback`.
 
-The check should be based on the item type in general, not the specific physical item. For example, if the player has donated one Mithril Pickaxe to the Museum, then any other Mithril Pickaxe the player later obtains should show “Museum: Donated” when hovered over.
+Network calls never happen in the tooltip callback. In the background, the service:
 
-Functional requirements:
+- requests `/v2/skyblock/profiles?uuid=...`;
+- selects the profile marked `selected`, with a latest-save fallback;
+- requests `/v2/skyblock/museum?profile=...`;
+- parses documented and historically observed response nesting defensively;
+- caches successful data under `config/museumdonationtooltip-cache/`;
+- keeps using the last good cache during temporary API failures.
 
-1. Use Minecraft fabric 1.21.11.
+The parser treats missing, null, renamed, wrongly typed, or unexpectedly nested fields as unavailable data rather than crashing Minecraft.
 
-2. Use Fabric's tooltip event system to modify item tooltip text when the player hovers over an item.
+## Requirements
 
-3. Read the hovered item’s SkyBlock item identity from its NBT data where possible. Prefer a stable internal item identifier rather than the display name, because item names can include colours, reforges, stars, recombobulation, enchantments, skins, or other formatting.
+- Minecraft Java Edition 1.21.11
+- Fabric Loader 0.19.3 or newer
+- Fabric API for Minecraft 1.21.11
+- Java 21
+- A Hypixel Developer Dashboard API key
 
-4. Create a normalisation system that converts the hovered item into a comparable museum item key. The system should ignore properties that do not change the general item type, such as:
+## Build
 
-   * enchantments
-   * reforges
-   * hot potato books
-   * stars
-   * recombobulation
-   * item rarity changes
-   * durability or usage state
-   * individual UUID-like metadata
+On Windows:
 
-5. Use the Hypixel Public API endpoint for SkyBlock museum data:
+```powershell
+.\gradlew.bat build
+```
 
-   * Use the museum endpoint by profile ID.
-   * Use the player’s selected SkyBlock profile if possible.
-   * Respect API rate limits.
-   * Cache API responses locally so the mod does not request the API every time a tooltip is rendered.
-   * Provide clear handling for 403, 422, 429, failed network requests, private API data, missing profile data, and malformed responses.
+On Linux or macOS:
 
-6. Build and maintain a donated-item set:
+```sh
+./gradlew build
+```
 
-   * Fetch the museum data from the Hypixel API.
-   * Parse all donated item entries for the selected profile/member.
-   * Store the donated item types in a HashSet or equivalent fast lookup structure.
-   * Check the normalised hovered item key against this set.
-   * The result should be item-type based, not instance based.
+The remapped mod JAR is written to `build/libs/`.
 
-7. Build and maintain a museum-donatable-item set:
+## Install And Configure
 
-   * Include a way to know which SkyBlock items can be donated to the Museum.
-   * Prefer a maintainable data file such as a JSON file bundled with the mod.
-   * The JSON should list known museum-donatable item IDs and optionally their category, such as Weapons, Armor Sets, Rarities, or Special Items.
-   * Design the code so this data file can be updated without rewriting the main logic.
-   * If an item is not in the donatable list, show “Museum: Not museum-donatable” rather than “Not Donated”.
+1. Install Fabric Loader and Fabric API for Minecraft 1.21.11.
+2. Put the built JAR in the Minecraft `mods` directory.
+3. Start Minecraft once so the config file is created.
+4. Create an application and API key in the [Hypixel Developer Dashboard](https://developer.hypixel.net/).
+5. Edit `config/museumdonationtooltip.json` and set `apiKey`.
+6. Run `/museumtooltip reloadconfig` in game.
 
-8. Add a config system:
+Default config:
 
-   * API key input, if required by the current Hypixel API system.
-   * Toggle for enabling/disabling tooltip lines.
-   * Toggle for showing unknown/API errors.
-   * Cache refresh interval.
-   * Optional colour formatting for donated, not donated, not donatable, and unknown states.
+```json
+{
+  "apiKey": "",
+  "enabled": true,
+  "showUnknown": true,
+  "cacheRefreshMinutes": 15,
+  "donatedColor": "green",
+  "notDonatedColor": "red",
+  "notDonatableColor": "dark_gray",
+  "unknownColor": "yellow"
+}
+```
 
-9. Add safety and compliance comments:
+The refresh interval is clamped to 5-1,440 minutes. API keys are stored locally in plain text because Hypixel requires the `API-Key` request header. The mod never logs the key or writes it to the museum cache.
 
-   * Explain in comments that the mod is informational only.
-   * Explain that it does not automate actions.
-   * Explain that it does not send gameplay actions to Hypixel.
-   * Explain that Hypixel mods are use-at-your-own-risk.
-   * Explain that users should only download the mod from its official release source.
+Available local commands:
 
-10. Add code comments throughout the program explaining the logic:
+- `/museumtooltip refresh` requests a background refresh.
+- `/museumtooltip status` shows cache/API state and the selected profile ID.
+- `/museumtooltip reloadconfig` reloads settings and refreshes.
 
-* Mod initialisation.
-* Event registration.
-* Tooltip event handling.
-* SkyBlock item ID extraction from NBT.
-* Item normalisation.
-* API request logic.
-* API response parsing.
-* Cache loading/saving.
-* Donated-item lookup.
-* Error handling.
-* Config handling.
+These commands are registered as Fabric client commands and are not sent to Hypixel.
 
-11. Include a “Documentation Used” section in the project comments. Use these documentation sources:
+## API And Failure Handling
 
-* Hypixel Allowed Modifications documentation.
-* Hypixel SkyBlock Rules.
-* Hypixel Public API documentation, especially the SkyBlock profile and museum endpoints.
-* MinecraftForge documentation.
-* Fabric 1.21.11 JavaDocs, especially client events and tooltip-related events.
-* Official Hypixel SkyBlock Wiki page for the Museum.
-* Any additional documentation used for JSON parsing, HTTP requests, Gradle, or Minecraft NBT handling.
+| Condition | Behavior |
+| --- | --- |
+| `403` | Marks the key forbidden; uses a previous valid cache if available. |
+| `400` or `422` | Marks the request invalid; does not crash. |
+| `404` or no profiles | Reports that no profile was found. |
+| `429` | Honors `RateLimit-Reset` or `Retry-After` before retrying. |
+| Private/null profile or museum data | Reports unavailable/private data. |
+| Network failure | Retains the last successful cache when possible. |
+| Malformed JSON or fields | Reports a malformed response and fails safely. |
 
-Important API-handling requirement:
+The official API documentation's example museum shape and UUID-keyed/nested member variants are covered by unit tests. An authenticated live museum request is not included in automated tests because the project must not contain or depend on a developer's private API key.
 
-Do not assume the exact Hypixel API JSON structure blindly. Before implementing the parser, inspect the current response format from the Hypixel Public API documentation and, where possible, test with a real example response.
+## Donatable Item Data
 
-The parser should be defensive and flexible:
+`src/main/resources/museum-donatable-items.json` is generated from Hypixel's public `/v2/resources/skyblock/items` endpoint. The checked-in snapshot contains 1,040 items from the resource last updated on June 9, 2026.
 
-* Check whether each expected field exists before reading it.
-* Handle missing, null, renamed, or nested fields safely.
-* Avoid crashing if the API response structure changes.
-* Log or display a clear “Unknown / API unavailable” state when the museum data cannot be parsed.
-* Keep the API parsing logic separate from the tooltip logic, so the parser can be updated later without rewriting the rest of the mod.
-* Include comments explaining which fields are expected from the API and what fallback behaviour is used if those fields are missing.
+To update it:
 
-Implementation expectations:
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\update-donatable-registry.ps1
+```
 
-The final project should be organised cleanly into separate classes/modules, for example:
+The generator includes every item with `museum_data`, its museum category, `mapped_item_ids` aliases, and armor-set donation keys. Updating the data does not require changes to tooltip or API logic.
 
-* Main mod class
-* Tooltip event handler
-* SkyBlock item parser
-* Item normaliser
-* Museum API client
-* Museum cache manager
-* Museum donation service
-* Donatable item registry
-* Config manager
-* Error/status model
+## Source Layout
 
-The program should avoid doing network calls directly inside the tooltip event. Tooltip rendering happens frequently, so the tooltip event should only perform fast local lookups against cached data. API fetching should happen on startup, profile change, manual refresh, or timed refresh.
+- `MuseumDonationTooltipClient`: initialization, client events, local commands, and compliance notes.
+- `tooltip/`: Fabric tooltip event handling and color formatting.
+- `item/`: SkyBlock NBT identity extraction and normalization.
+- `api/`: HTTP requests, selected-profile logic, and defensive museum parsing.
+- `cache/`: per-player atomic JSON cache loading and saving.
+- `service/`: refresh scheduling, status transitions, and donated-key lookups.
+- `registry/`: bundled museum-donatable item and alias registry.
+- `config/`: validated user settings.
+- `model/`: tooltip and API/cache state models.
 
-The mod should fail safely. If the API is unavailable, the tooltip should not crash the game. It should show “Museum: Unknown / API unavailable” or hide the museum line depending on config.
+## Safety And Compliance
 
-Before giving the final answer, explain the architecture first, then provide the commented source files, then provide the README.md, then list all documentation used.
+This mod is informational only. It does not:
+
+- automate gameplay or clicks;
+- move or modify inventory items;
+- alter movement or combat;
+- send custom or gameplay packets;
+- change Minecraft's communication with Hypixel;
+- read information unavailable to the normal client.
+
+It only reads client-visible item data and calls documented public Hypixel API endpoints. Hypixel states that modifications are used at the player's own risk. Download this mod only from its official source/release page and review current Hypixel rules before use.
+
+## Documentation Used
+
+- [Hypixel Allowed Modifications](https://support.hypixel.net/hc/en-us/articles/6472550754962-Hypixel-Allowed-Modifications)
+- [Hypixel SkyBlock Rules](https://support.hypixel.net/hc/en-us/articles/4508088842898-Hypixel-SkyBlock-Rules)
+- [Hypixel Public API v2](https://api.hypixel.net/), especially profiles, museum, item resources, authentication, response notes, and rate-limit headers
+- [Hypixel Developer Dashboard](https://developer.hypixel.net/)
+- [Official Hypixel SkyBlock Museum Wiki](https://wiki.hypixel.net/Museum)
+- [Fabric 1.21.11 documentation](https://docs.fabricmc.net/1.21.11/)
+- [Fabric API 0.141.4 Javadocs](https://maven.fabricmc.net/docs/fabric-api-0.141.4+1.21.11/)
+- [Yarn 1.21.11 build 6 Javadocs](https://maven.fabricmc.net/docs/yarn-1.21.11+build.6/)
+- [Fabric example mod, 1.21.11 branch](https://github.com/FabricMC/fabric-example-mod/tree/1.21.11)
+- [MinecraftForge item documentation](https://docs.minecraftforge.net/en/latest/items/), used only to compare cross-loader tooltip terminology; the implementation is Fabric
+- [Gson User Guide](https://github.com/google/gson/blob/main/UserGuide.md)
+- [Java 21 HttpClient](https://docs.oracle.com/en/java/javase/21/docs/api/java.net.http/java/net/http/HttpClient.html)
+- [Gradle documentation](https://docs.gradle.org/current/userguide/userguide.html)
+
+## License
+
+MIT

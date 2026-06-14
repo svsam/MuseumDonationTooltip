@@ -1,0 +1,24 @@
+{
+	"schemaVersion": 1,
+	"id": "museumdonationtooltip",
+	"version": "${version}",
+	"name": "MuseumDonationTooltip",
+	"description": "Shows whether a Hypixel SkyBlock item type has been donated to the player's Museum.",
+	"authors": [
+		"MuseumDonationTooltip contributors"
+	],
+	"license": "MIT",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"io.github.museumdonationtooltip.MuseumDonationTooltipClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
+

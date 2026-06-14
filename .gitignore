@@ -1,0 +1,15 @@
+.gradle/
+build/
+run/
+out/
+*.iml
+.idea/
+.vscode/
+
+# Local inspection downloads used while developing this project.
+/.fabric-api-sources.jar
+/.fabric-item-api-sources.jar
+/.fabric-api.pom
+/.hypixel-items.json
+/.jdk21/
+/.jdk21.zip
