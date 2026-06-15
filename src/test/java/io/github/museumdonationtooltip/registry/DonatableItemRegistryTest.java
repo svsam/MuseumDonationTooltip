@@ -31,5 +31,6 @@ class DonatableItemRegistryTest {
 		assertEquals("FARM_ARMOR_CHESTPLATE", item.itemId());
 		assertTrue(item.museumKeys().contains("FARM_ARMOR"));
 		assertTrue(item.museumKeys().contains("FARM_ARMOR_CHESTPLATE"));
+		assertTrue(registry.find("NON_DONATABLE_ITEM").isEmpty());
 	}
 }

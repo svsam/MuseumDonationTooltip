@@ -21,7 +21,6 @@ public final class MuseumConfig {
 	public int cacheRefreshMinutes = 15;
 	public String donatedColor = "green";
 	public String notDonatedColor = "red";
-	public String notDonatableColor = "dark_gray";
 	public String unknownColor = "yellow";
 
 	public void validate() {
@@ -29,7 +28,6 @@ public final class MuseumConfig {
 		cacheRefreshMinutes = Math.max(MIN_REFRESH_MINUTES, Math.min(MAX_REFRESH_MINUTES, cacheRefreshMinutes));
 		donatedColor = validColor(donatedColor, "green");
 		notDonatedColor = validColor(notDonatedColor, "red");
-		notDonatableColor = validColor(notDonatableColor, "dark_gray");
 		unknownColor = validColor(unknownColor, "yellow");
 	}
 
@@ -41,4 +39,3 @@ public final class MuseumConfig {
 		return VALID_COLORS.contains(normalized) ? normalized : fallback;
 	}
 }
-

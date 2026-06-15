@@ -6,10 +6,11 @@ You will see one of these messages:
 
 - `Museum: Donated`
 - `Museum: Not Donated`
-- `Museum: Not museum-donatable`
 - `Museum: Unknown / API unavailable`
 
 The mod checks the general item type, not the exact copy in your inventory. For example, donating one Aspect of the End means every Aspect of the End you hover over will be shown as donated. Reforges, enchantments, stars, recombobulation, rarity upgrades, and item UUIDs do not change the result.
+
+Items that cannot be donated to the Museum do not receive a Museum tooltip line.
 
 ## Installation
 
@@ -17,19 +18,19 @@ The mod checks the general item type, not the exact copy in your inventory. For 
 2. Put `museum-donation-tooltip-1.0.0.jar` in your Minecraft `mods` folder.
 3. Start Minecraft once. This creates the mod's config file.
 4. Place the API key in the config file.
-6. Open:
+5. Open:
 
    ```text
    .minecraft/config/museumdonationtooltip.json
    ```
 
-7. Add the key between the quotes:
+6. Add the key between the quotes:
 
    ```json
    "apiKey": "your-api-key-here"
    ```
 
-8. Save the file and run `/museumtooltip reloadconfig` in Minecraft.
+7. Save the file and run `/museumtooltip reloadconfig` in Minecraft.
 
 Do not put your API key in `MuseumConfig.java`, upload it to GitHub, or share it with anyone.
 
@@ -45,7 +46,6 @@ The full default config looks like this:
   "cacheRefreshMinutes": 15,
   "donatedColor": "green",
   "notDonatedColor": "red",
-  "notDonatableColor": "dark_gray",
   "unknownColor": "yellow"
 }
 ```

@@ -4,8 +4,11 @@ import io.github.museumdonationtooltip.config.ConfigManager;
 import io.github.museumdonationtooltip.config.MuseumConfig;
 import io.github.museumdonationtooltip.item.SkyBlockItemParser;
 import io.github.museumdonationtooltip.model.TooltipState;
+import io.github.museumdonationtooltip.registry.DonatableItem;
 import io.github.museumdonationtooltip.registry.DonatableItemRegistry;
 import io.github.museumdonationtooltip.service.MuseumDonationService;
+import java.util.Optional;
+import java.util.function.Function;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -38,31 +41,39 @@ public final class MuseumTooltipHandler {
 			}
 
 			itemParser.extractItemId(stack).ifPresent(itemId -> {
-				TooltipState state;
-				if (registry.isEmpty()) {
-					state = TooltipState.UNKNOWN;
-				} else {
-					state = registry.find(itemId)
-							.map(donationService::lookup)
-							.orElse(TooltipState.NOT_DONATABLE);
-				}
-				if (state == TooltipState.UNKNOWN && !config.showUnknown) {
-					return;
-				}
-				lines.add(Text.literal(state.text()).formatted(colorFor(state, config)));
+				// Items absent from Hypixel's museum_data registry are not donatable,
+				// so they should not receive a Museum tooltip line.
+				resolveState(itemId, registry, donationService::lookup)
+						.ifPresent(state -> addLine(state, config, lines));
 			});
 		});
+	}
+
+	static Optional<TooltipState> resolveState(
+			String itemId,
+			DonatableItemRegistry registry,
+			Function<DonatableItem, TooltipState> donationLookup
+	) {
+		if (registry.isEmpty()) {
+			return Optional.of(TooltipState.UNKNOWN);
+		}
+		return registry.find(itemId).map(donationLookup);
+	}
+
+	private static void addLine(TooltipState state, MuseumConfig config, java.util.List<Text> lines) {
+		if (state == TooltipState.UNKNOWN && !config.showUnknown) {
+			return;
+		}
+		lines.add(Text.literal(state.text()).formatted(colorFor(state, config)));
 	}
 
 	private static Formatting colorFor(TooltipState state, MuseumConfig config) {
 		String name = switch (state) {
 			case DONATED -> config.donatedColor;
 			case NOT_DONATED -> config.notDonatedColor;
-			case NOT_DONATABLE -> config.notDonatableColor;
 			case UNKNOWN -> config.unknownColor;
 		};
 		Formatting formatting = Formatting.byName(name);
 		return formatting == null ? Formatting.WHITE : formatting;
 	}
 }
-
