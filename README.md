@@ -1,4 +1,4 @@
-# MuseumDonationTooltip
+# MuseumDonationTooltip - Made by svsam
 
 MuseumDonationTooltip is a small client-side Fabric mod for Hypixel SkyBlock. When you hover over an item, it adds a line showing whether that item type has already been donated to your Museum.
 
@@ -11,21 +11,12 @@ You will see one of these messages:
 
 The mod checks the general item type, not the exact copy in your inventory. For example, donating one Aspect of the End means every Aspect of the End you hover over will be shown as donated. Reforges, enchantments, stars, recombobulation, rarity upgrades, and item UUIDs do not change the result.
 
-## What You Need
-
-- Minecraft Java Edition 1.21.11
-- Fabric Loader 0.19.3 or newer
-- Fabric API for Minecraft 1.21.11
-- Java 21
-- A Hypixel API key
-
 ## Installation
 
 1. Install Fabric Loader and Fabric API for Minecraft 1.21.11.
 2. Put `museum-donation-tooltip-1.0.0.jar` in your Minecraft `mods` folder.
 3. Start Minecraft once. This creates the mod's config file.
-4. Create an application on the [Hypixel Developer Dashboard](https://developer.hypixel.net/).
-5. Copy the application's API key.
+4. Place the API key in the config file.
 6. Open:
 
    ```text
@@ -59,11 +50,6 @@ The full default config looks like this:
 }
 ```
 
-- `enabled` turns all Museum tooltip lines on or off.
-- `showUnknown` controls whether API errors are shown in tooltips.
-- `cacheRefreshMinutes` controls how often the mod refreshes your Museum data. Values are limited to between 5 and 1,440 minutes.
-- The four color options accept normal Minecraft formatting color names.
-
 The key is stored locally in this config because Hypixel requires it for Museum requests. It is never written to logs or the Museum cache.
 
 ## Commands
@@ -74,21 +60,15 @@ These commands run on your client and are not sent to Hypixel:
 - `/museumtooltip status` shows the current API and cache status.
 - `/museumtooltip reloadconfig` reloads the config file, then refreshes.
 
-If the tooltip says `Unknown / API unavailable`, run `/museumtooltip status`. A `403` error normally means that Hypixel rejected the API key. Make sure you copied the API key itself, rather than the application ID or application URL.
+If the tooltip says `Unknown / API unavailable`, run `/museumtooltip status`. A `403` error normally means that Hypixel rejected the API key. Make sure you copied the API key itself, rather than the application ID or application URL. (Pls accept my application hypixel I'll update this when needed)
 
 ## How It Works
-
-The mod reads Hypixel's internal item ID from the data already attached to the item. This is more reliable than using its displayed name, which may contain colors, reforges, stars, or other upgrades.
-
-In the background, the mod:
 
 1. asks Hypixel for your SkyBlock profiles;
 2. chooses the currently selected profile when possible;
 3. requests that profile's Museum data;
 4. turns the donated item IDs into a fast local lookup set;
 5. saves the last successful response in a local cache.
-
-Hovering over an item does not make a network request. The tooltip only checks information that has already been loaded into memory, so opening inventories or moving the mouse across items does not repeatedly contact Hypixel.
 
 If the API is temporarily unavailable, the mod keeps using the last successful cache. Missing or unexpected API fields are handled as an unknown state instead of crashing the game.
 
@@ -100,12 +80,6 @@ On Windows:
 .\gradlew.bat build
 ```
 
-On Linux or macOS:
-
-```sh
-./gradlew build
-```
-
 The finished mod is:
 
 ```text
@@ -113,29 +87,6 @@ build/libs/museum-donation-tooltip-1.0.0.jar
 ```
 
 The file ending in `-sources.jar` is source code for development and should not be installed as the mod.
-
-## Donatable Item List
-
-The bundled `museum-donatable-items.json` file is generated from Hypixel's public SkyBlock item resource. It contains the known Museum items, armor-set donation keys, and alternate IDs such as starred Dungeon variants.
-
-To download the latest item data and rebuild the list:
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\update-donatable-registry.ps1
-```
-
-The current checked-in list contains 1,040 donatable entries and was generated from Hypixel item data last updated on June 9, 2026.
-
-## Project Structure
-
-- `tooltip/` adds the tooltip line through Fabric.
-- `item/` reads and normalizes SkyBlock item IDs.
-- `api/` handles Hypixel requests and response parsing.
-- `cache/` saves the last successful Museum response.
-- `service/` manages refreshes and donated-item lookups.
-- `registry/` loads the list of Museum-donatable items.
-- `config/` loads and validates user settings.
-- `model/` contains the tooltip and API status types.
 
 ## Safety
 
