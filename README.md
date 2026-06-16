@@ -15,7 +15,7 @@ Items that cannot be donated to the Museum do not receive a Museum tooltip line.
 ## Installation
 
 1. Install Fabric Loader and Fabric API for Minecraft 1.21.11.
-2. Put `museum-donation-tooltip-1.0.0.jar` in your Minecraft `mods` folder.
+2. Put the newest `museum-donation-tooltip-*.jar` in your Minecraft `mods` folder.
 3. Start Minecraft once. This creates the mod's config file.
 4. Place the API key in the config file.
 5. Open:
@@ -83,7 +83,7 @@ On Windows:
 The finished mod is:
 
 ```text
-build/libs/museum-donation-tooltip-1.0.0.jar
+build/libs/museum-donation-tooltip-1.0.2.jar
 ```
 
 The file ending in `-sources.jar` is source code for development and should not be installed as the mod.
