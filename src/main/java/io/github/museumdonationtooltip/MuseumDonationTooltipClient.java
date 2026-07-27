@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * users should install releases only from this project's official release source.</p>
  *
  * <p>Documentation Used: Hypixel Allowed Modifications, SkyBlock Rules, Public API
- * (profiles, museum, items), the official SkyBlock Museum wiki, Fabric 26.1
+ * (profiles, museum, items), the official SkyBlock Museum wiki, Fabric 26.2
  * documentation/Javadocs, MinecraftForge tooltip documentation for cross-loader
  * terminology comparison, Gson, Java HttpClient, and Gradle documentation.</p>
  */

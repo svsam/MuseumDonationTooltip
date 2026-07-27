@@ -14,7 +14,7 @@ Items that cannot be donated to the Museum do not receive a Museum tooltip line.
 
 ## Installation
 
-1. Install Java 25, Fabric Loader, and Fabric API for Minecraft 26.1.2.
+1. Install Java 25, Fabric Loader, and Fabric API for Minecraft 26.2.
 2. Put the newest `museum-donation-tooltip-*.jar` in your Minecraft `mods` folder.
 3. Start Minecraft once. This creates the mod's config file.
 4. Place the API key in the config file.
@@ -101,9 +101,9 @@ Hypixel considers all modifications use-at-your-own-risk. Check the current rule
 - [Hypixel Public API v2](https://api.hypixel.net/)
 - [Hypixel Developer Dashboard](https://developer.hypixel.net/)
 - [Official Hypixel SkyBlock Museum Wiki](https://wiki.hypixel.net/Museum)
-- [Fabric 26.1 documentation](https://docs.fabricmc.net/)
-- [Fabric API 0.155.2 Javadocs](https://maven.fabricmc.net/docs/fabric-api-0.155.2+26.1.2/)
-- [Fabric example mod for 26.1.2](https://github.com/FabricMC/fabric-example-mod/tree/26.1.2)
+- [Fabric 26.2 documentation](https://docs.fabricmc.net/)
+- [Fabric API 0.155.2 Javadocs](https://maven.fabricmc.net/docs/fabric-api-0.155.2+26.2/)
+- [Fabric example mod for 26.2](https://github.com/FabricMC/fabric-example-mod/tree/26.2)
 - [MinecraftForge item documentation](https://docs.minecraftforge.net/en/latest/items/)
 - [Gson User Guide](https://github.com/google/gson/blob/main/UserGuide.md)
 - [Java 25 HttpClient](https://docs.oracle.com/en/java/javase/25/docs/api/java.net.http/java/net/http/HttpClient.html)
