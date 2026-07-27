@@ -7,11 +7,12 @@ import io.github.museumdonationtooltip.model.TooltipState;
 import io.github.museumdonationtooltip.registry.DonatableItem;
 import io.github.museumdonationtooltip.registry.DonatableItemRegistry;
 import io.github.museumdonationtooltip.service.MuseumDonationService;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 /**
  * Adds one informational line after vanilla/Hypixel tooltip text.
@@ -60,20 +61,23 @@ public final class MuseumTooltipHandler {
 		return registry.find(itemId).map(donationLookup);
 	}
 
-	private static void addLine(TooltipState state, MuseumConfig config, java.util.List<Text> lines) {
+	private static void addLine(TooltipState state, MuseumConfig config, java.util.List<Component> lines) {
 		if (state == TooltipState.UNKNOWN && !config.showUnknown) {
 			return;
 		}
-		lines.add(Text.literal(state.text()).formatted(colorFor(state, config)));
+		lines.add(Component.literal(state.text()).withStyle(colorFor(state, config)));
 	}
 
-	private static Formatting colorFor(TooltipState state, MuseumConfig config) {
+	private static ChatFormatting colorFor(TooltipState state, MuseumConfig config) {
 		String name = switch (state) {
 			case DONATED -> config.donatedColor;
 			case NOT_DONATED -> config.notDonatedColor;
 			case UNKNOWN -> config.unknownColor;
 		};
-		Formatting formatting = Formatting.byName(name);
-		return formatting == null ? Formatting.WHITE : formatting;
+		try {
+			return ChatFormatting.valueOf(name.toUpperCase(Locale.ROOT));
+		} catch (IllegalArgumentException | NullPointerException ignored) {
+			return ChatFormatting.WHITE;
+		}
 	}
 }

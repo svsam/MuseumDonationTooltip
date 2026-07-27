@@ -14,7 +14,7 @@ Items that cannot be donated to the Museum do not receive a Museum tooltip line.
 
 ## Installation
 
-1. Install Fabric Loader and Fabric API for Minecraft 1.21.11.
+1. Install Java 25, Fabric Loader, and Fabric API for Minecraft 26.1.2.
 2. Put the newest `museum-donation-tooltip-*.jar` in your Minecraft `mods` folder.
 3. Start Minecraft once. This creates the mod's config file.
 4. Place the API key in the config file.
@@ -60,7 +60,7 @@ These commands run on your client and are not sent to Hypixel:
 - `/museumtooltip status` shows the current API and cache status.
 - `/museumtooltip reloadconfig` reloads the config file, then refreshes.
 
-If the tooltip says `Unknown / API unavailable`, run `/museumtooltip status`. A `403` error normally means that Hypixel rejected the API key. Make sure you copied the API key itself, rather than the application ID or application URL. (Pls accept my application hypixel I'll update this when needed)
+If the tooltip says `Unknown / API unavailable`, run `/museumtooltip status`. A `403` error normally means that Hypixel rejected the API key. Make sure you copied the approved API key itself, rather than the application ID or application URL.
 
 ## How It Works
 
@@ -101,13 +101,12 @@ Hypixel considers all modifications use-at-your-own-risk. Check the current rule
 - [Hypixel Public API v2](https://api.hypixel.net/)
 - [Hypixel Developer Dashboard](https://developer.hypixel.net/)
 - [Official Hypixel SkyBlock Museum Wiki](https://wiki.hypixel.net/Museum)
-- [Fabric 1.21.11 documentation](https://docs.fabricmc.net/1.21.11/)
-- [Fabric API 0.141.4 Javadocs](https://maven.fabricmc.net/docs/fabric-api-0.141.4+1.21.11/)
-- [Yarn 1.21.11 build 6 Javadocs](https://maven.fabricmc.net/docs/yarn-1.21.11+build.6/)
-- [Fabric example mod for 1.21.11](https://github.com/FabricMC/fabric-example-mod/tree/1.21.11)
+- [Fabric 26.1 documentation](https://docs.fabricmc.net/)
+- [Fabric API 0.155.2 Javadocs](https://maven.fabricmc.net/docs/fabric-api-0.155.2+26.1.2/)
+- [Fabric example mod for 26.1.2](https://github.com/FabricMC/fabric-example-mod/tree/26.1.2)
 - [MinecraftForge item documentation](https://docs.minecraftforge.net/en/latest/items/)
 - [Gson User Guide](https://github.com/google/gson/blob/main/UserGuide.md)
-- [Java 21 HttpClient](https://docs.oracle.com/en/java/javase/21/docs/api/java.net.http/java/net/http/HttpClient.html)
+- [Java 25 HttpClient](https://docs.oracle.com/en/java/javase/25/docs/api/java.net.http/java/net/http/HttpClient.html)
 - [Gradle documentation](https://docs.gradle.org/current/userguide/userguide.html)
 
 ## License

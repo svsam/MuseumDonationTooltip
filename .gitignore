@@ -4,8 +4,10 @@ run/
 out/
 logs/
 *.iml
+*.class
 .idea/
 .vscode/
+/remappedSrc/
 
 # Local inspection downloads used while developing this project.
 /.fabric-api-sources.jar

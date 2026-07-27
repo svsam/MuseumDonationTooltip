@@ -1,6 +1,6 @@
 package io.github.museumdonationtooltip;
 
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal;
 
 import io.github.museumdonationtooltip.api.HypixelApiClient;
 import io.github.museumdonationtooltip.cache.MuseumCacheManager;
@@ -17,8 +17,8 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * users should install releases only from this project's official release source.</p>
  *
  * <p>Documentation Used: Hypixel Allowed Modifications, SkyBlock Rules, Public API
- * (profiles, museum, items), the official SkyBlock Museum wiki, Fabric 1.21.11
+ * (profiles, museum, items), the official SkyBlock Museum wiki, Fabric 26.1
  * documentation/Javadocs, MinecraftForge tooltip documentation for cross-loader
  * terminology comparison, Gson, Java HttpClient, and Gradle documentation.</p>
  */
@@ -91,7 +91,7 @@ public final class MuseumDonationTooltipClient implements ClientModInitializer {
 				donationService.disconnect();
 				return;
 			}
-			donationService.tick(client.player.getUuid());
+			donationService.tick(client.player.getUUID());
 		});
 	}
 
@@ -102,11 +102,11 @@ public final class MuseumDonationTooltipClient implements ClientModInitializer {
 						.then(literal("refresh").executes(context -> {
 							UUID playerUuid = currentPlayerUuid();
 							if (playerUuid == null) {
-								context.getSource().sendError(Text.literal("Join a world before refreshing."));
+								context.getSource().sendError(Component.literal("Join a world before refreshing."));
 								return 0;
 							}
 							boolean started = donationService.forceRefresh(playerUuid);
-							context.getSource().sendFeedback(Text.literal(
+							context.getSource().sendFeedback(Component.literal(
 									started ? "Museum refresh started." : "Museum refresh is already running or needs an API key."
 							));
 							return started ? 1 : 0;
@@ -117,7 +117,7 @@ public final class MuseumDonationTooltipClient implements ClientModInitializer {
 							if (playerUuid != null) {
 								donationService.forceRefresh(playerUuid);
 							}
-							context.getSource().sendFeedback(Text.literal("MuseumDonationTooltip config reloaded."));
+							context.getSource().sendFeedback(Component.literal("MuseumDonationTooltip config reloaded."));
 							return 1;
 						}))
 						.then(literal("status").executes(context -> {
@@ -125,7 +125,7 @@ public final class MuseumDonationTooltipClient implements ClientModInitializer {
 							String fetched = snapshot.fetchedAt().equals(java.time.Instant.EPOCH)
 									? "never"
 									: TIME_FORMAT.format(snapshot.fetchedAt());
-							context.getSource().sendFeedback(Text.literal(
+							context.getSource().sendFeedback(Component.literal(
 									snapshot.status().displayText()
 											+ " | profile=" + emptyAsUnknown(snapshot.profileId())
 											+ " | donatedKeys=" + snapshot.donatedKeys().size()
@@ -138,8 +138,8 @@ public final class MuseumDonationTooltipClient implements ClientModInitializer {
 	}
 
 	private static UUID currentPlayerUuid() {
-		MinecraftClient client = MinecraftClient.getInstance();
-		return client.player == null ? null : client.player.getUuid();
+		Minecraft client = Minecraft.getInstance();
+		return client.player == null ? null : client.player.getUUID();
 	}
 
 	private static String emptyAsUnknown(String value) {
