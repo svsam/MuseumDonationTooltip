@@ -12,6 +12,39 @@ The mod checks the general item type, not the exact copy in your inventory. For 
 
 Items that cannot be donated to the Museum do not receive a Museum tooltip line.
 
+## The problem
+
+SkyBlock item metadata changes with reforges, enchantments, stars, rarity
+upgrades, and unique item UUIDs. None of those should make a donated item type
+look new, while an API failure must not be mistaken for “not donated.” The mod
+needs to answer a small question in a tooltip without hiding those two sources of
+ambiguity.
+
+## The approach
+
+The client normalises an item's SkyBlock identifier, checks it against a generated
+registry of 1,040 Museum-eligible item types, and compares its possible Museum
+keys with the selected profile's donated set. API access, profile selection,
+normalisation, caching, registry lookup, and tooltip rendering are kept in
+separate classes and covered by focused JUnit tests.
+
+The last successful Museum response is cached locally. That gives the interface
+three states instead of forcing a misleading boolean: donated, not donated, or
+unknown because neither current API data nor a usable cache is available.
+
+## What I found
+
+The important implementation detail is the distinction between *item identity*
+and *item instance*. Normalising to the general type makes one donated Aspect of
+the End apply to every modified copy, while the eligibility registry prevents
+ordinary non-Museum items from receiving noise in their tooltips. Keeping an
+explicit unknown state also means a network or authentication problem does not
+silently become a false “not donated” result.
+
+Version `1.0.2` targets Minecraft `26.2`, Fabric Loader `0.19.3` or newer,
+Fabric API `0.155.2+26.2`, and Java 25. The mod is informational only and remains
+subject to Hypixel's use-at-your-own-risk modification rules.
+
 ## Installation
 
 1. Install Java 25, Fabric Loader, and Fabric API for Minecraft 26.2.
